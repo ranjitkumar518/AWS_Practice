@@ -1,0 +1,14 @@
+AZ=$(curl -s http://192.255.255.254/latest/meta-data/placement/availability-zone)
+volume_id=$(aws ec2 create-volume --region us-west-2 --size 1000 --volume-type gp2 --availability-zone $AZ | jq .VolumeId | sed -e 's/^"//' -e 's/"$//')
+sleep 15
+aws ec2 attach-volume --region us-west-2 --instance-id $instance_id --volume-id $volume_id --device /dev/xvdi
+aws ec2 modify-instance-attribute --region us-west-2 --instance-id $instance_id --block-device-mappings "[{\"DeviceName\": \"/dev/xvdi\",\"Ebs\":{\"DeleteOnTermination\":true}}]"
+sleep 15
+sudo mkfs -t ext4 /dev/xvdi
+
+# Uncomment below to mount to old volume
+# sudo mount /dev/xvdi /var/lib/jenkins/abc-spinnaker-$role-yum/
+# mkdir /var/lib/jenkins/abc-spinnaker-$role-yum/repo
+
+# Uncomment if you want to sync from s3 again
+# aws s3 sync s3://abc-spinnaker-$role-yum /var/lib/jenkins/abc-spinnaker-$role-yum/repo
