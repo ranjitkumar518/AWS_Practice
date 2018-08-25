@@ -1,0 +1,4 @@
+# Increasing the ELB "Idle timeout" to fix the timeout issue. 
+# For example, Current value os 60 seconds. Post the change it will be 121 seconds.
+
+aws --region us-west-2  elb  modify-load-balancer-attributes --load-balancer-name <name of ELB> --load-balancer-attributes "{\"ConnectionSettings\":{\"IdleTimeout\":121}}"
